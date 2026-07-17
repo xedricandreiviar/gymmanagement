@@ -30,6 +30,14 @@ export default async function MembersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">All Users</h1>
+        <div className="flex gap-2">
+          <Link href="/dashboard/members/invitations">
+            <Button variant="outline" size="sm">View Invitations</Button>
+          </Link>
+          <Link href="/dashboard/members/invite">
+            <Button variant="primary" size="sm">+ Invite New Member</Button>
+          </Link>
+        </div>
       </div>
 
       <Card>
