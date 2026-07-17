@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,10 +62,7 @@ export function LoginForm() {
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-secondary-foreground">
-        Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-accent hover:underline font-medium transition-colors duration-200 ease-in-out">
-          Sign up
-        </Link>
+        Don&apos;t have an account? Contact your gym admin for an invitation.
       </p>
     </Card>
   );
