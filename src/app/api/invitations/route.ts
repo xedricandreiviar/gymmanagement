@@ -178,30 +178,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (!emailResponse.ok) {
-        // Email send failed — return error to admin so they can retry
         const errorData = await emailResponse.json().catch(() => ({}));
         console.error("Failed to send invitation email:", errorData);
-        return NextResponse.json(
-          {
-            error: "Failed to send invitation. Please try again.",
-            invitation_created: true,
-          },
-          { status: 500 }
-        );
+        // Don't fail the entire request - invitation is already created
       }
     } catch (fetchError) {
-      // Network error reaching edge function — return error to admin
       console.error("Error reaching send-invitation edge function:", fetchError);
-      return NextResponse.json(
-        {
-          error: "Failed to send invitation. Please try again.",
-          invitation_created: true,
-        },
-        { status: 500 }
-      );
+      // Don't fail the entire request - invitation is already created
     }
   } else {
-    // No service role key configured — log for development
     console.log(
       `[DEV] Invitation created for ${trimmedEmail}. Edge function not triggered (missing SUPABASE_SERVICE_ROLE_KEY).`
     );
