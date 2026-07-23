@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 
 /**
  * Valid MIME types for photo uploads.
@@ -129,7 +129,7 @@ export async function uploadPhoto(
   memberId: string,
   file: File
 ): Promise<PhotoUploadResult | PhotoUploadError> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
 
   const extension = getExtensionFromMime(file.type);
   if (!extension) {
@@ -177,7 +177,7 @@ export async function uploadPhoto(
 export async function getPhotoUrl(
   memberId: string
 ): Promise<{ url: string | null; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
 
   const { data, error } = await supabase
     .from("profiles")

@@ -303,6 +303,11 @@ export function PhotoUpload({ onPhotoSelect, error: externalError }: PhotoUpload
           Accepted formats: JPEG, PNG, WebP. Minimum 200×200px. Maximum 5 MB.
         </p>
       )}
+
+      {/* Privacy disclaimer */}
+      <p className="text-xs text-muted/70 italic">
+        Your photo will only be used and displayed to gym staff to verify your identity when you check in at the gym. It will not be shared with third parties.
+      </p>
     </div>
   );
 }
