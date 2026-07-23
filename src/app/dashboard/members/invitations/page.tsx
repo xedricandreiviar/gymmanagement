@@ -217,16 +217,31 @@ export default function InvitationsPage() {
                             {formatDate(invitation.expires_at)}
                           </td>
                           <td className="py-3">
-                            {(expired && invitation.status !== "accepted") && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                loading={resendingId === invitation.id}
-                                onClick={() => handleResend(invitation.id)}
-                              >
-                                Resend
-                              </Button>
-                            )}
+                            <div className="flex gap-1">
+                              {invitation.status !== "accepted" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const link = `${window.location.origin}/register/complete?token=${invitation.token}`;
+                                    navigator.clipboard.writeText(link);
+                                    alert("Registration link copied to clipboard!");
+                                  }}
+                                >
+                                  Copy Link
+                                </Button>
+                              )}
+                              {(expired && invitation.status !== "accepted") && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  loading={resendingId === invitation.id}
+                                  onClick={() => handleResend(invitation.id)}
+                                >
+                                  Resend
+                                </Button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
