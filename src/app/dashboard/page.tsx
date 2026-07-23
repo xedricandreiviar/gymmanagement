@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { Users, CreditCard, Calendar, ClipboardCheck } from "lucide-react";
@@ -69,21 +70,25 @@ export default async function DashboardPage() {
             icon={<Users className="h-6 w-6" />}
             title="Total Active Members"
             value={activeMembers ?? 0}
+            href="/dashboard/members"
           />
           <MetricCard
             icon={<CreditCard className="h-6 w-6" />}
             title="Revenue This Month"
             value={`₱${revenueThisMonth.toLocaleString()}`}
+            href="/dashboard/payments"
           />
           <MetricCard
             icon={<ClipboardCheck className="h-6 w-6" />}
             title="Check-ins Today"
             value={todayAttendance ?? 0}
+            href="/dashboard/attendance"
           />
           <MetricCard
             icon={<Calendar className="h-6 w-6" />}
             title="Pending Registrations"
             value={pendingRegistrations ?? 0}
+            href="/dashboard/members/invitations"
           />
         </div>
 
