@@ -1,17 +1,20 @@
 import QRCode from "qrcode";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 
 /**
  * Generates a QR code PNG buffer encoding the member's profile UUID.
- * Exported for property testing.
+ * Uses toDataURL (works in serverless environments without node-canvas)
+ * then converts the base64 data URL to a Buffer.
  */
 export async function generateQRCode(memberId: string): Promise<Buffer> {
-  const buffer = await QRCode.toBuffer(memberId, {
-    type: "png",
+  const dataUrl = await QRCode.toDataURL(memberId, {
     width: 300,
     errorCorrectionLevel: "M",
+    type: "image/png",
   });
-  return buffer;
+  // Convert data URL to buffer: "data:image/png;base64,..." -> Buffer
+  const base64 = dataUrl.split(",")[1];
+  return Buffer.from(base64, "base64");
 }
 
 /**
@@ -23,7 +26,7 @@ export async function storeQRCode(
   memberId: string,
   qrBuffer: Buffer
 ): Promise<string> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
   const storagePath = `${memberId}.png`;
 
   const { error } = await supabase.storage
@@ -69,7 +72,7 @@ export async function generateAndStoreQRCode(
       const publicUrl = await storeQRCode(memberId, qrBuffer);
 
       // Update the member's profile with the QR code URL
-      const supabase = await createClient();
+      const supabase = createServiceRoleClient();
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ qr_code_url: publicUrl })
