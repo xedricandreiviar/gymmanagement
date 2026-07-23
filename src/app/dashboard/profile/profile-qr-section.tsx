@@ -20,7 +20,7 @@ export function ProfileQRSection({ qrCodeUrl, memberName, profileId }: ProfileQR
       const response = await fetch("/api/qr/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileId }),
+        body: JSON.stringify({ memberId: profileId }),
       });
 
       if (response.ok) {
