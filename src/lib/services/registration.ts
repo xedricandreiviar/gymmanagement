@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { validateToken, markAsAccepted } from "@/lib/services/invitation";
 import type { Invitation } from "@/lib/types/database";
 
@@ -126,12 +126,16 @@ export async function completeRegistration(
     };
   }
 
-  const supabase = await createClient();
+  const adminClient = createServiceRoleClient();
 
-  // Step 4: Create Supabase Auth user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  // Step 4: Create Supabase Auth user using admin API (bypasses email confirmation)
+  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
     email: invitation.email,
     password,
+    email_confirm: true,
+    user_metadata: {
+      full_name: invitation.full_name,
+    },
   });
 
   if (authError || !authData.user) {
@@ -147,7 +151,7 @@ export async function completeRegistration(
   // Step 5: Update profile with phone and emergency contact
   const emergencyContact = `${emergencyContactName} - ${emergencyContactPhone}`;
 
-  const { data: profileData, error: profileError } = await supabase
+  const { data: profileData, error: profileError } = await adminClient
     .from("profiles")
     .update({
       phone,
@@ -161,7 +165,7 @@ export async function completeRegistration(
 
   if (profileError || !profileData) {
     // If profile doesn't exist yet (trigger may not have run), create it
-    const { data: newProfile, error: createProfileError } = await supabase
+    const { data: newProfile, error: createProfileError } = await adminClient
       .from("profiles")
       .upsert({
         user_id: userId,
@@ -193,7 +197,7 @@ export async function completeRegistration(
       const uploadResult = await uploadPhoto(profileId, photoFile);
       if (uploadResult && typeof uploadResult === "object" && "url" in uploadResult) {
         avatarUrl = uploadResult.url as string;
-        await supabase
+        await adminClient
           .from("profiles")
           .update({ avatar_url: avatarUrl })
           .eq("id", profileId);
@@ -212,7 +216,7 @@ export async function completeRegistration(
       const publicUrl = await storeQRCode(profileId, qrBuffer);
       if (publicUrl) {
         qrCodeUrl = publicUrl;
-        await supabase
+        await adminClient
           .from("profiles")
           .update({ qr_code_url: qrCodeUrl })
           .eq("id", profileId);
@@ -223,7 +227,7 @@ export async function completeRegistration(
   }
 
   // Step 8: Get the membership plan details
-  const { data: plan, error: planError } = await supabase
+  const { data: plan, error: planError } = await adminClient
     .from("membership_plans")
     .select("*")
     .eq("id", invitation.plan_id)
@@ -241,7 +245,7 @@ export async function completeRegistration(
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + plan.duration_days);
 
-  const { data: membership, error: membershipError } = await supabase
+  const { data: membership, error: membershipError } = await adminClient
     .from("memberships")
     .insert({
       member_id: profileId,
@@ -261,7 +265,7 @@ export async function completeRegistration(
   }
 
   // Step 10: Create pending payment record
-  const { data: payment, error: paymentError } = await supabase
+  const { data: payment, error: paymentError } = await adminClient
     .from("payments")
     .insert({
       member_id: profileId,
