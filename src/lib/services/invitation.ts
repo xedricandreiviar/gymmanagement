@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { Invitation, InvitationStatus } from "@/lib/types/database";
 
 export interface CreateInvitationResult {
@@ -83,7 +83,7 @@ export async function createInvitation(
  * Checks existence, expiry, and whether it has already been used.
  */
 export async function validateToken(token: string): Promise<TokenValidationResult> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
 
   const { data, error } = await supabase
     .from("invitations")
@@ -208,7 +208,7 @@ export async function resendInvitation(
 export async function markAsAccepted(
   token: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createServiceRoleClient();
 
   const { error } = await supabase
     .from("invitations")
