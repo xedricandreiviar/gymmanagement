@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { validateToken } from "@/lib/services/invitation";
 import {
   completeRegistration,
   validatePassword,
@@ -90,6 +92,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get the email from the invitation before registration (needed for sign-in after)
+    const preValidation = await validateToken(token!);
+    const memberEmail = preValidation.valid ? preValidation.invitation?.email : null;
+
     // Orchestrate the full registration via service
     const result = await completeRegistration(
       token,
@@ -117,6 +123,15 @@ export async function POST(request: NextRequest) {
         { error: result.error, field: result.field },
         { status: statusCode }
       );
+    }
+
+    // Sign the user in after successful registration
+    if (memberEmail) {
+      const supabase = await createClient();
+      await supabase.auth.signInWithPassword({
+        email: memberEmail,
+        password: password!,
+      });
     }
 
     // Success response

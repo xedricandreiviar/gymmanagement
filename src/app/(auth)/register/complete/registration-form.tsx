@@ -120,8 +120,9 @@ export function RegistrationForm({ token, email, fullName }: RegistrationFormPro
         return;
       }
 
-      // Success: redirect to success page
-      router.push("/register/success");
+      // Success: redirect to dashboard (user is now signed in)
+      router.push("/dashboard");
+      router.refresh();
     } catch {
       setPassword("");
       setErrors({ general: "A network error occurred. Please try again." });
